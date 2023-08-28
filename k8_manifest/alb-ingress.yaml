@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: simpson-prod-alb-ing
+  namespace: simpson-videochat
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-northeast-1:792387376808:certificate/ec12a44c-919a-4a21-9fdf-a2f0db856026
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+spec:
+  rules:
+    - host: sig-test.eigox.jp
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: simpson-prod-sig-service
+              servicePort: 80
+    - host: api-test.eigox.jp
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: simpson-prod-api-service
+              servicePort: 80
+    - host: note-test.eigox.jp
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: simpson-prod-web-service
+              servicePort: 8004
+    - host: lessonroom-test.eigox.jp
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: simpson-prod-web-service
+              servicePort: 80
+    - host: mng-test.eigox.jp
+      http:
+        paths:
+          - paths:
+            backend:
+              serviceName: simpson-prod-mng-service
+              servicePort: 80

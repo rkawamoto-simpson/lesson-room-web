@@ -1,0 +1,63 @@
+.paginationjs-pages>ul>li>a {
+  padding: 6px 18px;
+  color: white;
+  background-color: #003838;
+/*  background-color: lightgreen;
+  border: 1px solid darkcyan;*/
+  border-radius: 5px;
+}
+
+.paginationjs-pages>ul>li>a:hover {
+  /*
+  color: black;
+  background-color: white;
+  */
+  color: #ffd900;
+  background-color: #003838;
+}
+
+.paginationjs-pages>ul>li.active>a {
+  /*
+  color: black;
+  background-color: white;
+  */
+  color: gray;
+  background-color: darkgray;
+}
+
+.paginationjs-pages>ul>li.disabled>a {
+  /*
+  color: black;
+  background-color: white;
+  */
+  color: gray;
+  background-color: darkgray;
+}
+
+.paginationjs-prev {
+  margin: 0 16px 0 0;
+}
+
+.paginationjs-next {
+  margin: 0 0 0 16px;
+}
+
+.paginationjs-page {
+  margin: 0 4px;
+}
+
+.paginationjs-pages>ul {
+  display: flex;
+  align-items: baseline;
+}
+
+.paginationjs-pages>ul>li.paginationjs-ellipsis.disabled>a {
+  border: none;
+  color: black;
+  margin: 0 4px;
+  padding: 0;
+}
+
+ul {
+  list-style: none;
+}

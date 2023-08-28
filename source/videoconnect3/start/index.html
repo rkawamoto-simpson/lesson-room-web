@@ -1,0 +1,1380 @@
+﻿<!DOCTYPE html>
+<html lang="ja" translate="no">
+
+<head>
+  <meta name="google" content="notranslate">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, shrink-to-fit=no">
+  <title>Lesson Room</title>
+  <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+  <script src="https://cdn.ckeditor.com/ckeditor5/29.1.0/decoupled-document/ckeditor.js"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://unpkg.com/rxjs@7.3.0/dist/bundles/rxjs.umd.min.js"></script>
+  <!--<link href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&display=swap" rel="stylesheet">-->
+  <link rel="stylesheet" type="text/css" href="css/common.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="css/pagination.min.css">
+
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+  <script type="text/javascript">
+      //console.log = () => {}
+  </script>
+  <script src="https://riversun.github.io/jsframe/jsframe.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/board_listener.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/text.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/mouse.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/eraser.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/pen.js?v=202209091914"></script>
+  <!-- <script type="text/javascript" src="board/cursor.js?v=202209091914"></script> -->
+  <script type="text/javascript" src="board/board.js?v=202209091914"></script>
+  <script type="text/javascript" src="board/audio_manager.js?v=202209091914"></script>
+  <script type="text/javascript" src="client/pagination.min.js?v=202209091914"></script>
+
+  <script type="text/javascript" src="chat/send_file.js?v=202209091914"></script>
+  <script type="text/javascript" src="chat/chat.js?v=202209091914"></script>
+  <script type="text/javascript" src="textbook/textbook.js?v=202209091914"></script>
+  <!-- background edit -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+  <!-- マルチドロップリスト -->
+  <link rel="stylesheet" href="css/bootstrap-multiselect.css">
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <!-- record-video -->
+  <!-- <script type="text/javascript" src="record/record.js"></script> -->
+  <!-- <script src="record/RecordRTC.js"></script> -->
+  <script src="https://unpkg.com/@mattiasbuelens/web-streams-polyfill/dist/polyfill.min.js"></script>
+  <script src="https://www.webrtc-experiment.com/EBML.js"></script>
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="https://www.webrtc-experiment.com/DetectRTC.js"> </script>
+
+  <!-- video element -->
+  <link href="https://www.webrtc-experiment.com/getHTMLMediaElement.css" rel="stylesheet">
+  <script src="https://www.webrtc-experiment.com/getHTMLMediaElement.js"></script>
+
+  <script src="client/bootstrap-multiselect.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://cdnout.com/jszip-utils"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
+  <!-- https://www.npmjs.com/package/@panzoom/panzoom -->
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+
+  <script>
+    // Staging
+    // const URL_LESSON_ROOM = "https://simpson-stg-api.tgl-cloud.com";
+    // const URL_SOCKET_SERVER = 'https://simpson-stg-note.tgl-cloud.com';
+    // Production
+    const URL_LESSON_ROOM = "https://api.eigox.jp";
+    const URL_SOCKET_SERVER = 'https://note.eigox.jp';
+    //Current version
+    const VERSION = 'V2.29'
+  </script>
+</head>
+
+<body>
+  <div class="body-wrapper" style="overflow: auto;">
+    <div id="full-contents" style="display:none;">
+      <video id="full-video" autoplay playsinline>
+      </video>
+    </div>
+    <div id="contents" class="" style="background-color: #003534">
+      <!-- ******************** Title Bar ******************** -->
+      <div id="title_bar" class="col-12 container-fluid p-0">
+        <div id="logo" style="position: relative;">
+          <div id="title"></div>
+          <div id="version"></div>
+        </div>
+        <div id="time">
+          <div class="jp time-text time-before">レッスン時間 : </div>
+          <div class="en time-text time-before" style="display: none">Lesson Time : </div>
+
+          <div class="jp time-text time-remaining" style="display: none">レッスン残り時間 : </div>
+          <div class="en time-text time-remaining" style="display: none">Lesson Remaining Time : </div>
+
+          <!-- <div class="jp time-text time-prepare" >レッスン開始時間 : </div>
+          <div class="en time-text time-prepare" >Lesson Start Time : </div> -->
+
+          <div id="time-view" style="padding-left:5px;line-height: normal;">00:00</div>
+          <div class="jp time-text remaining" style="display: none; margin-left: 3px;">分</div>
+          <div class="en time-text remaining" style="display: none; margin-left: 3px;">min(s)</div>
+        </div>
+      </div>
+
+      <!-- ******************** Main Contets ******************** -->
+      <div id="main-contents" class="col-12" style="display:none;">
+        <div class="row">
+          <!-- ******************** Stream Contets ******************** -->
+          <div id="stream-contents" class="col-12">
+            <div id="video-contents" class="">
+              <!-- MainVideo Contets -->
+              <div id="main-videocontents" class="col-12">
+              <div id="btn-extend">
+                <div id="btn-extend-up" ></div>
+                <div id="btn-extend-down" style="display: none;"></div>
+              </div>
+
+              <div id="btn-extend-landscape" style="display: none;">
+                <div id="btn-extend-true" style="display: none;" ></div>
+                <div id="btn-extend-false" ></div>
+              </div>
+
+                <!-- remote Video -->
+                <div id="remoteVideo-parent">
+                  <div class="videocontents"><video id="remoteVideo" autoplay></video>
+                    <div id="WrapperJoinWithoutCam" style="display: none;">
+                      <p id="withoutCamJP" class="notifiDisconnectCamera jp"></p>
+                      <p id="withoutCamEN" class="notifiDisconnectCamera en"></p>
+                    </div>
+                    <div id="WrapperDisconnectCam" style="display: none;">
+                      <p id="disconnectCamJP" class="notifiDisconnectCamera jp">カメラ接続がありません</p>
+                      <p id="disconnectCamEN" class="notifiDisconnectCamera en">No camera connection</p>
+                    </div>
+                    <!-- Remote Name -->
+                    <div class="usertext">
+                      <div id="remoteName" class="user-name-label"></div>
+                    </div>
+                    <!-- Remotevideo Infomation -->
+                    <div class="container-fluid" style="position:absolute">
+                      <div class="loading-wrapper-background" id="loader" style="visibility: hidden; color: white;">
+                        <img class="loading" src="./svg/spiner.svg" />
+                        Connecting ...
+                      </div>
+                      <div class="loading-wrapper-background" id="internet-network" style="visibility: hidden; color: white;">
+                        Network connection is not stable
+                      </div>
+                      <div style="position: absolute;right: 10px;top: 10px;height: auto;width: 100px;">
+                        <div class="row" style="width: 100%;height: 100%;justify-content: flex-end;margin: 0px; flex-wrap: nowrap;">
+                          <div class="remote-icon">
+                            <input type="checkbox" id="toggle-remotemic">
+                            <label class="micInfo">
+                              <div class="min-onmic-icon" id="remote_videomic"></div>
+                            </label>
+                          </div>
+                          <div class="remote-icon">
+                            <input type="checkbox" id="toggle-remotecamera">
+                            <label class="micInfo">
+                              <div class="min-oncamera-icon" id="remote_videocamera"></div>
+                            </label>
+                          </div>
+                          <div class="remote-icon">
+                            <input type="checkbox" id="toggle-remoterecord">
+                            <label class="micInfo">
+                              <div class="min-onrecord-icon" id="remote_videorecord"></div>
+                            </label>
+                          </div>
+                          <!--
+                          <div class="pointer fullicon" style="height:30px;">
+                            <input type="checkbox" id="toggle-fullscreenpartner">
+                            <label for="toggle-fullscreenpartner" class="fullshare_button" id="btn_fullscreenpartner">
+                              <div style="display: flex;justify-content: center;align-items: center;">
+                                <div class="icon_fullshare">
+                                </div>
+                              </div>
+                            </label>
+                          </div> -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Local Video -->
+                <div id="localVideo-parent">
+                  <div class="videocontents">
+                    <video id="localVideo" class="viewVideo" autoplay muted playsinline></video>
+                    <video id="localVideoBg" class="viewVideo" autoplay muted playsinline></video>
+                    <div class="usertext local-usertext">
+                      <div id="localName" class="user-name-label"></div>
+                    </div>
+                  </div>
+                  <div class="notifiNoCamWrapper" style="display: none;">
+                    <p class="notifiNoCam jp" >カメラ接続がない</p>
+                    <p class="notifiNoCam en" style="display: none;" >No camera</p>
+                  </div>
+                </div>
+              </div>
+              <!-- SubVideo Contets -->
+              <div id="sub-videocontents" class="col-4" hidden>
+                <div id="sub-videos">
+                </div>
+              </div>
+              <!-- Template Video Content -->
+              <template id="video_template">
+                <div class="videocontents">
+                  <video class="video" poster="./svg/camera_off.svg"  autoplay playsinline></video>
+                  <div class="usertext">
+                    <div class="min-offmic-icon"></div>
+                    <label class="user-name-label"></label>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <!-- ScreenShare Content -->
+            <div id="share-contents" class="main-background" style="display:none;width:100%;">
+              <div class="w-100" style="background: #003534; padding: 10px 0px;">
+                <div class="share-video-wrapper" style="position: relative;border-radius: 10px;overflow: hidden;">
+                  <video id="share_video" autoplay playsinline></video>
+                  <div id="video-controls">
+                    <div class="pointer">
+                      <input type="checkbox" id="toggle-fullshare">
+                      <label for="toggle-fullshare" class="fullshare_button position-right-bottom" id="btn_fullshare">
+                        <div style="display: flex;justify-content: center;align-items: center;">
+                          <div class="icon_fullshare">
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                    <div id="test">
+                      test message
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Whiteboard Content -->
+            <div id="draw_component" class="row m-0" style="display:none">
+              <div class="main-background" style="width:60px">
+                <div style="width:50px;width: 50px;float: right;">
+
+                  <input id="mode-pen" type="checkbox" class="draw-tool" value="pen" name="paint-mode">
+                  <label for="mode-pen" id="btn-pen" class="draw-tool-label">
+                    <div class="draw-btn pbtn" onclick="setMode('pen')">
+                      <div class="mode" id="mode-pen"></div>
+                    </div>
+                  </label>
+                  <input id="mode-eraser" type="checkbox" class="draw-tool" value="eraser" name="paint-mode">
+                  <label for="mode-eraser" id="btn-eraser" class="draw-tool-label">
+                    <div class="draw-btn pbtn" onclick="setMode('eraser')">
+                      <div class="mode" id="mode-eraser"></div>
+                    </div>
+                  </label>
+                  <div id='prevPage' class="draw-btn draw-btn-nolabel" onclick="prevPage()" style="display: none;">
+                    <div id="prev-icon"></div>
+                  </div>
+                  <div id='prevPageDisable' class="draw-btn draw-btn-nolabel" style="display: none;">
+                    <div id="prev-icon-disable"></div>
+                  </div>
+                  <div id='currPage' class="draw-btn draw-btn-nolabel" style="display: none;">
+                  </div>
+                  <div id='nextPage' class="draw-btn draw-btn-nolabel" onclick="nextPage()" style="display: none;">
+                    <div id="next-icon"></div>
+                  </div>
+                  <div id='nextPageDisable' class="draw-btn draw-btn-nolabel" style="display: none;">
+                    <div id="next-icon-disable"></div>
+                  </div>
+                  
+                  <!-- download textbook -->
+                  <div style="display: none;" class="draw-btn draw-btn-nolabel" id="download-textbook" >
+                    <span tooltip="Download textbook as PDF" flow="right" class="en tooltip-en" id="tooltip-textbook">
+                      <div id="save-icon"></div>
+                      <img src="./svg/spinerLoadingSave-icon.svg" alt="" class="loadingDownloadSaveIconText"/>
+                    </span>
+                    <span tooltip="テキストをPDFでダウンロード" flow="right" class="jp tooltip-jp" id="tooltip-textbook">
+                      <div id="save-icon-jp"></div>
+                      <img src="./svg/spinerLoadingSave-icon.svg" alt="" class="loadingDownloadSaveIconjpText"/>
+                    </span>
+                  </div>
+                  <!-- download whiteboard -->
+                  <div style="display: none;" class="draw-btn draw-btn-nolabel" id="download-whiteboard" onclick="saveCanvas()">
+                    <span tooltip="" flow="right" class="en">
+                      <div id="save-icon-draw"></div>
+                      <img src="./svg/spinerLoadingSave-icon.svg" alt="" class="loadingDownloadSaveIcon"/>
+                    </span>
+                    <span tooltip="" flow="right" class="jp">
+                      <div id="save-icon-draw-jp"></div>
+                      <img src="./svg/spinerLoadingSave-icon.svg" alt="" class="loadingDownloadSaveIconjp"/>
+                    </span>
+                  </div>
+
+                  <div id='backTextbook' class="draw-btn draw-btn-nolabel" onclick="backTextbook()"
+                    style="display: flex;">
+                    <div id="back-icon"></div>
+                  </div>
+                  <div class="exit-btn draw-btn draw-btn-nolabel" onclick="exitShareMode()">
+                    <div id="exit-icon"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="width: calc(100% - 60px); " class="main-board">
+                <div id="draw_parent" style="overflow-y: scroll;overflow-x: hidden;">
+                  <div id="draw" style="width: 100%;position: absolute;top: 0;left: 0;">
+                    <div id="start_zoom_pointer" style="position: absolute;top: 0;left: 0;width: 0px;height: 0px;">
+                    </div>
+                    <canvas id="remoteDrawCanvas" style="z-index: 1;" class="canvas"></canvas>
+                    <canvas id="localDrawCanvas" style="z-index: 2;" class="canvas"></canvas>
+                    <canvas id="localPointerCanvas" style="z-index: 3;" class="canvas"></canvas>
+                    <canvas id="remotePointerCanvas" style="z-index: 4;" class="canvas"></canvas>
+                    <canvas id="backgroundCanvas" style="z-index: 0;background-color: white;" class="canvas"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Textbook-Select Content -->
+            <div id="materialSelect-contents" class="" style="display:none">
+              <div class="material-container container">
+                <div id="material-content" class="row p-2"></div>
+                <div id="material-list" class="" style="display: none;">
+                  <div class="material-group-header">
+                    <div class="bread-crumb">
+                      <div class="left-title">
+                        <div id="back-to-top">
+                          <span class="en">Textbook TOP</span>
+                          <span class="jp">教材TOP</span>
+                        </div>
+                        <span>&nbsp;＞&nbsp;</span>
+                        <span id="group-title-en" class="en group-title"></span>
+                        <span id="group-title-ja" class="jp group-title"></span>
+                      </div>
+
+                      <div id="btn-back">
+                        <div class="en">Back to TOP</div>
+                        <div class="jp">教材TOPに戻る</div>
+                      </div>
+
+                    </div>
+                    <div id="material-title-en" class="material-title en"></div>
+                    <div id="material-title-ja" class="material-title jp"></div>
+                  </div>
+
+                  <div id="list-textbook"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Textbook-View Content -->
+            <!-- <div id="materialShare-contents" class="row" style="display:none">
+              <div class="w-100">
+              </div>
+            </div> -->
+          </div>
+          <!-- ******************** Side Contets ******************** -->
+          <div id="side-contents" class="col-0">
+            <div id="side-area" class="row" style="height: 100%;padding: 10px 10px 10px 0px;">
+              <!-- -->
+              <div id="text-area" class="w-100">
+                <section class="tab_contents w-100"
+                  style="height: 100%;border-radius: 5px;/*overflow: hidden;*/text-align: center;">
+                  <div class="tab_wrap row m-0">
+                    <input id="tab1" type="radio" name="check" checked>
+                    <label for="tab1" class="col-6 tab tab_lab1 select-none" style="border-right: solid 2px #CCCCCC;">
+                      <div class="row" style="justify-content: center;align-items: center;">
+                        <div id="tab_icon" class="chat"></div>
+                        <div class="jp ttext">チャット</div>
+                        <div class="en ttext" style="display: none">Chat</div>
+                      </div>
+                    </label>
+                    <input id="tab2" type="radio" name="check">
+                    <label for="tab2" class="col-6 tab tab_lab2 select-none">
+                      <div class="row" style="justify-content: center;align-items: center;">
+                        <div id="tab_icon" class="note"></div>
+                        <div class="jp ttext">ノート</div>
+                        <div class="en ttext" style="display: none">Note</div>
+                      </div>
+                    </label>
+                    <div class="panels">
+                      <!-- Chat Contets -->
+                      <div id="chat-contents" class="m-0">
+                        <div id="chat-area">
+                          <img class="loading-chat" src="./svg/spiner.svg" />
+                        </div>
+                        <template id="chat_template">
+                          <div id="chat-parent" class="container-fluid">
+                            <div id="chat-header" class="">
+                              <div id="chat-left" class="content_text">
+                              </div>
+                              <div id="chat-right" class="content_text">
+                              </div>
+                            </div>
+                            <div id="chat-bubble">
+                              <div id="chat-text" class="content_text chat-text-delete"></div>
+                            </div>
+                          </div>
+                        </template>
+                        <div id="chat-message" class="row">
+                          <div id="confirm-delete" style="height:auto;width:100%;display: none;background: #dddddd;">
+                            <p class="delete-confirm" id="delete-confirm" style="margin-bottom:0;display: none;"></p>
+                            <p class="delete-confirm" id="delete-confirm-file" style="margin-bottom:0;display: none;"></p>
+                            <div style="display:flex;justify-content: space-evenly;">
+                              <p class="delete-cancel" id="delete-cancel" value="cancel"
+                                style="cursor:pointer;color:#000"></p>
+                              <p class="delete-yes" id="delete-yes" style="cursor:pointer;color:red"></p>
+                            </div>
+                          </div>
+                         
+                          <div class="w-100 h-auto file-attach"
+                            style="display: flex;justify-content: flex-start;align-items: center;margin-left:33px">
+                            <input id="cb_send" type="checkbox">
+                            <label for="cb_send" class="m-0 ml-1">
+                              <div class="jp">Enterで送信</div>
+                              <div class="en" style="display: none">Send by Enter</div>
+                            </label>
+                          </div>
+                          <div id="send-area" class="row w-100 m-0">
+                            <label for="upload-file" class="send-file-icon">
+                              <!-- <div class="send-file-icon-pdf">
+                              </div> -->
+                              <div class="send-file-icon-image">
+                              </div>
+                            </label>
+                            <input type="file" id="upload-file" hidden multiple />
+
+                            <textarea id="chat-input" wrap="hard"></textarea>
+                            <div id="type-done-btn">Done</div>
+                            <div id="btn-send">
+                              <div id="icon-send"></div>
+                            </div>
+                            <div id="export-chat-content">
+                              <div class="glyphicon" id="export-icon"></div>
+                              <img src="./svg/spinerLoadingAllChat.svg" alt="" class="loadingChat" style="display: none;" id="loadingDownloadAllChat"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Note Contets -->
+                      <div id="Note-contents" class="col-12 h-100">
+                        <div id="editor-table"></div>
+                        <div class="export-note-content glyphicon-note"></div>
+                        <img class="loading glyphicon-note-image" id="loadingDownloadNote" src="./svg/spinerDownload.svg" />
+                        <!-- <button class="export-note-content glyphicon-note">
+                          <img class="download-btn-note" src="./svg/spinerDownload.svg" />
+                          Download
+                        </button> -->
+                        <div id="type-done-btn">Done</div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              </section>
+            </div>
+
+          </div>
+          <!-- ******************** MenuBar Contets ******************** -->
+          <div id="menu_bar_parent" class="">
+            <div class="select-none">
+              <div id="menu_bar" class="col-12 up">
+                <div class="d-flex align-items-start justify-content-center">
+                  <!-- マイク -->
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-mic">
+                    <label for="toggle-mic" id="btn_mic" class="footer-btn">
+                      <div id="icon_mic" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">マイク</div>
+                        <div class="button-name en" style="display: none">Microphone</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- カメラ -->
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-camera">
+                    <label for="toggle-camera" id="btn_camera" class="footer-btn">
+                      <div id="icon_camera" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">カメラ</div>
+                        <div class="button-name en" style="display: none">Camera</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- 背景合成 -->
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-backgroundEdit">
+                    <label for="toggle-backgroundEdit" id="btn_backgroundEdit" class="footer-btn">
+                      <div id="icon_backgroundEdit" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">背景合成</div>
+                        <div class="button-name en" style="display: none">Background</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- 教材 -->
+                  <div class="menu-item">
+                    <input type="checkbox" id="toggle-textbook">
+                    <label for="toggle-textbook" id="btn_textbook" class="footer-btn">
+                      <div id="icon_textbook" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">テキスト</div>
+                        <div class="button-name en" style="display: none">Textbook</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-textshare">
+                  </div>
+                  <!-- 共有 -->
+                  <div id="share-button">
+                    <input type="checkbox" id="toggle-screenshare">
+                    <label for="toggle-screenshare" id="btn_screenshare" class="footer-btn">
+                      <div id="icon_share" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">画面共有</div>
+                        <div class="button-name en" style="display: none">Share</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- ボード -->
+                  <div class="menu-item">
+                    <input type="checkbox" id="toggle-board">
+                    <label for="toggle-board" id="btn_board" class="footer-btn">
+                      <div id="icon_board" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">手書き</div>
+                        <div class="button-name en" style="display: none">Draw</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- チャット -->
+                  <div class="show-btn" id="chat-button">
+                    <input type="checkbox" id="toggle-chat">
+                    <label for="toggle-chat" id="btn_chat" class="footer-btn">
+                      <div style="position: relative;width: 100%;">
+                        <div id="icon_chat" class="footer-icon"></div>
+                        <div id="chat-bg" style="display:none;"></div>
+                        <div>
+                          <div class="button-name jp">チャット</div>
+                          <div class="button-name en" style="display: none">Chat</div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- 録画 -->
+
+                  <div id="record-button">
+                    <input type="checkbox" id="toggle-record">
+                    <label for="toggle-record" id="btn_recording" class="footer-btn">
+                      <div id="icon_record" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">録画</div>
+                        <div class="button-name en" style="display: none">Record</div>
+                      </div>
+                    </label>
+                  </div>
+
+                  <!-- <div id="record-button-playing" style="display: none;">
+                    <input type="checkbox" id="toggle-record-playing">
+                    <label for="toggle-record-playing" id="btn_recording_playing" class="footer-btn">
+                      <div id="icon_record_playing" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">録画</div>
+                        <div class="button-name en" style="display: none">Record</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div style="margin-top: 10px; display: none;" id="recording-player"></div> -->
+
+                  <!-- 言語 -->
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-language" checked>
+                    <label for="toggle-language" id="btn_language" class="footer-btn">
+                      <div id="icon_language" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">Language</div>
+                        <div class="button-name en" style="display: none">言語</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- 設定 -->
+                  <div class="hide-btn">
+                    <input type="checkbox" id="toggle-setting">
+                    <label id="btn_setting" class="footer-btn setting-modal-open">
+                      <div id="icon_setting" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">設定</div>
+                        <div class="button-name en" style="display: none">Settings</div>
+                      </div>
+                    </label>
+                  </div>
+                  <!-- 各種設定 -->
+                  <div class="show-btn btn-varioussetting">
+                    <input type="checkbox" id="toggle-varioussetting">
+                    <label for="toggle-varioussetting" id="btn_varioussetting" class="footer-btn">
+                      <div id="icon_varioussetting" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">設定</div>
+                        <div class="button-name en" style="display: none">Settings</div>
+                      </div>
+                    </label>
+                    <ul class="gmenu">
+                      <!-- サブマイク -->
+                      <li name="various-mic" class="row">
+                        <div class="w-100">
+                          <input type="checkbox" id="toggle-submic">
+                          <label for="toggle-submic" class="row m-0 sub-btn" id="btn_submic">
+                            <div id="icon_submic" class="subicon"></div>
+                            <div style="width:60%;line-height: 25px;">
+                              <div class="jp">マイク</div>
+                              <div class="en" style="display: none">Microphone</div>
+                            </div>
+                          </label>
+                        </div>
+                      </li>
+                      <!-- サブカメラ -->
+                      <li name="various-camera" class="row">
+                        <div class="w-100">
+                          <input type="checkbox" id="toggle-subcamera">
+                          <label for="toggle-subcamera" class="row m-0 sub-btn" id="btn_subcamera">
+                            <div id="icon_subcamera" class="subicon"></div>
+                            <div style="width:60%;line-height: 25px;">
+                              <div class="jp">カメラ</div>
+                              <div class="en" style="display: none">Camera</div>
+                            </div>
+                          </label>
+                        </div>
+                      </li>
+                      <!-- サブ言語 -->
+                      <li name="various-language" class="row">
+                        <div class="w-100">
+                          <input type="checkbox" id="toggle-sublanguage">
+                          <label for="toggle-sublanguage" class="row m-0 sub-btn" id="btn_sublanguage">
+                            <div id="icon_sublanguage" class="subicon"></div>
+                            <div style="width:60%;line-height: 25px;">
+                              <div class="jp">Language</div>
+                              <div class="en" style="display: none">言語</div>
+                            </div>
+                          </label>
+                        </div>
+                      </li>
+                      <!-- サブ背景合成 -->
+                      <li name="various-backgroundEdit" class="row">
+                        <div class="w-100">
+                          <input type="checkbox" id="toggle-subbackgroundEdit">
+                          <label for="toggle-subbackgroundEdit" class="row m-0 sub-btn" id="btn_subbackgroundEdit">
+                            <div id="icon_subbackgroundEdit" class="subicon"></div>
+                            <div style="width:60%;line-height: 25px;">
+                              <div class="jp">背景合成</div>
+                              <div class="en" style="display: none">Background</div>
+                            </div>
+                          </label>
+                        </div>
+                      </li>
+                      <!-- サブ設定 -->
+                      <li name="various-setting" class="row sub-btn">
+                        <div class="sub-setting subicon"></div>
+                        <div style="width:60%;line-height: 25px;">
+                          <div class="jp">その他設定</div>
+                          <div class="en" style="display: none">Other Settings</div>
+                        </div>
+                      </li>
+                      <!-- サブ閉じる -->
+                      <li name="various-close" class="row sub-btn">
+                        <div class="sub-close subicon"></div>
+                        <div style="width:60%;line-height: 25px;">
+                          <div class="jp">閉じる</div>
+                          <div class="en" style="display: none">Close</div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- 退出 -->
+                  <div class="menu-item">
+                    <input type="checkbox" id="toggle-exit">
+                    <label for="toggle-exit" id="btn_exit" class="footer-btn">
+                      <div id="icon_exit" class="footer-icon"></div>
+                      <div>
+                        <div class="button-name jp">退室</div>
+                        <div class="button-name en" style="display: none">Exit</div>
+                      </div>
+                    </label>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- background Contents -->
+      <div class="col-12" id="background-Contents">
+        <div class="col-12" id="main-background">
+        </div>
+      </div>
+      <div id="before-contents" class="modal__content" style="display:none">
+        <div class="container">
+          <div class="row align-items-center content_text">
+            <div class="col-12">
+              <label class="jp">現在時刻</label>
+              <label class="en" style="display:none;">Present Time</label>
+            </div>
+            <div class="col-12">
+              <div class="col-12" style="height:60px" id="DateTimeDisplay"></div>
+            </div>
+            <div class="col-12">
+              <button class="btn w-100 ml-0 mt-3" id="lesson_start" disabled>
+                <div class="jp">LessonRoomに入室する</div>
+                <div class="en" style="display:none;">Enter LessonRoom</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="after-contents" class="modal__content" style="display:none">
+        <div class="container">
+          <div class="row align-items-center content_text">
+            <div class="col-12">
+              <label class="jp">LessonRoomは終了しました。</label>
+              <label class="en" style="display:none;">LessonRoom has been closed.</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="exit-contents" class="modal__content" style="display:none">
+        <div class="container">
+          <div class="row align-items-center content_text">
+            <div class="col-12">
+              <label class="jp">LessonRoomから退室しました。</label>
+              <label class="en" style="display:none;">Left the LessonRoom.</label>
+            </div>
+            <div class="col-12">
+              <button class="btn w-100 ml-0 mt-3" id="restart">
+                <div for="restart" class="jp">LessonRoomに入室する</div>
+                <div for="restart" class="en" style="display:none;">Enter LessonRoom</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ******************** Modal Contents ******************** -->
+      <!-- Setting Modal -->
+      <div class="modal setting-modal">
+        <div class="modal__bg setting-modal-close"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="close setting-modal-close cross_btn_settings"><div id="exit-icon"></div></div>
+            <div class="row align-items-center content_text">
+              <div class="col-12">
+                <label class="content_title">
+                  <div class="jp">設定</div>
+                  <div class="en" style="display: none">Settings</div>
+                </label>
+              </div>
+              <div class="col-12">
+                <label>
+                  <div class="jp">カメラ選択</div>
+                  <div class="en" style="display: none">Camera</div>
+                </label>
+              </div>
+              <div id="wrapperNotifiNoCam" class="col-12 hiddenElement">
+                <select id="notifiNoCameraJP"  class="form-control hoverNoCamera jp" disabled>
+                  <option>
+                    カメラ接続がない
+                  </option>  
+                </select>
+                <select id="notifiNoCameraEN"  class="form-control hoverNoCamera en" disabled style="display: none;">
+                  <option>
+                    No camera
+                  </option>  
+                </select>
+              </div>
+              <div class="col-12">
+                <select id="config_camera" class="form-control"></select>
+              </div>
+              <div class="col-12">
+                <label>
+                  <div class="jp">マイク選択</div>
+                  <div class="en" style="display: none">Microphone</div>
+                </label>
+              </div>
+              <div class="col-12">
+                <select id="config_mic" class="form-control"></select>
+              </div>
+              <div class="col-12">
+                <label>
+                  <div class="jp">マイク音量</div>
+                  <div class="en" style="display: none">Microphone volume</div>
+                </label>
+              </div>
+              <div class="col-12 w-100">
+                <input id="config_input" type="range" min="0" max="100" value="100" class="slider w-100"></input>
+              </div>
+              <div class="col-12 speaker-select">
+                <label>
+                  <div class="jp">スピーカー選択</div>
+                  <div class="en" style="display: none">Speaker</div>
+                </label>
+              </div>
+              <div class="col-12 speaker-select">
+                <select id="config_output" class="form-control"></select>
+              </div>
+              <div class="col-12" hidden>
+                <label>
+                  <div class="jp">マイク音量調整</div>
+                  <div class="en" style="display: none">Microphone volume setting</div>
+                </label>
+              </div>
+              <div class="col-12" hidden>
+                <input type="range" min="0" max="100" value="100" id="config_volumn">
+              </div>
+              <div class="col-12">
+                <button class="btn setting-modal-close w-100 ml-0 mt-3">
+                  <div class="jp">閉じる</div>
+                  <div class="en" style="display: none">Close</div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- notifi Modal -->
+      <div id="notifiReload">
+        <div class="modal__bg" id="cancel_bg"></div>
+        <div class="modal__content styleModal" style="overflow: hidden;">
+        <p class="en">WEBCAM connected. Please reload the page to use the webcam.</p>
+        <p class="jp"  style="display: none;">WEBCAM接続できました。WEBCAMを利用したい場合、ページをリロードしてください。</p>
+        <button id="rejoinJP" class="btn jp">リロード</button> 
+        <button id="rejoinEN" class="btn en" style="display: none;">Reload</button>
+        <button id="cancel_rejoinEN" class="btn reject  jp">キャンセル</button>
+        <button id="cancel_rejoinJP" style="display: none;" class="btn reject en">Cancel</button>
+         <!-- </div> -->
+        </div>
+      </div>
+      <!-- Information Modal -->
+      <div class="modal info-modal">
+        <div class="modal__bg info-modal-close"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="close info-modal-close cross_btn"><span aria-hidden="true">&times;</span></div>
+            <div class="row content_text">
+              <div class="col-12">
+                <label class="content_title">会議情報</label>
+              </div>
+              <div class="col-12">
+                <label>会議に招待するURL</label>
+              </div>
+              <div class="col-12">
+                <input id="info_invite_url" class="text-left w-100" type="text"></input>
+              </div>
+              <div class="col-12">
+                <button id="info_copy" class="btn w-100 ml-0">参加URLのコピー</button>
+              </div>
+              <div class="col-12">
+                <label id="copy_done" class="w-100">コピーできました。</label>
+              </div>
+              <div class="col-12">
+                <button class="btn info-modal-close w-100 ml-0 mt-3">閉じる</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Share Modal -->
+      <div class="modal share-modal">
+        <div class="modal__bg share-modal-close"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="close share-modal-close cross_btn"><span aria-hidden="true">&times;</span></div>
+            <div class="row content_text">
+              <label class="content_title">共有</label>
+              <button id="share_screen" class="btn w-100 ml-0 mt-3">画面共有</button>
+              <button id="share_canvas" class="btn w-100 ml-0 mt-3">ホワイトボード</button>
+              <button class="btn share-modal-close w-100 ml-0 mt-3">閉じる</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Exit Modal -->
+      <div class="modal exit-modal">
+        <div class="modal__bg exit-modal-close"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="close exit-modal-close cross_btn"><span aria-hidden="true">&times;</span></div>
+            <div class="row content_text">
+              <div class="col-12 content_title">
+                <label class="font-weight-bold justify-content-center">本当に退室しますか?</label>
+              </div>
+              <div class="col-12">
+                <button id="exit_all" class="btn exit-modal-close font-weight-bold ml-0 w-100"
+                  disabled>全員を退室させる</button>
+              </div>
+              <div class="col-12">
+                <button id="exit_unit" class="btn exit-modal-close font-weight-bold ml-0 w-100">ミーティングの退室</button>
+              </div>
+              <div class="col-12">
+                <button class="btn exit-modal-close ml-0 mt-3 w-100">閉じる</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Permission Modal -->
+      <div class="modal permission-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12 content_title">
+                <label class="font-weight-bold justify-content-center">デバイスへのアクセスが許可されていません。</label>
+              </div>
+              <div class="col-12">
+                <label class="justify-content-center">ブラウザの設定からカメラ・マイクの使用許可を有効にし</label>
+                <br>
+                <label class="justify-content-center">画面の更新を行ってください。</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Device Select Modal -->
+      <div class="modal first-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12 content_title">
+                <label class="font-weight-bold justify-content-center">マイク・カメラの設定</label>
+              </div>
+              <div class="col-12">
+                <label>カメラ選択</label>
+              </div>
+              <div class="col-12">
+                <select id="first_camera" class="form-control"></select>
+              </div>
+              <div class="col-12">
+                <label>マイク選択</label>
+              </div>
+              <div class="col-12">
+                <select id="first_mic" class="form-control"></select>
+              </div>
+              <div class="col-12">
+                <button class="btn first-modal-close ml-0 mt-3 w-100">この設定で開始する</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 自動再生モーダル -->
+      <div class="modal autoplay-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12">
+                <label>このサイトでは音声を再生します。</label><br>
+                <label>音声を再生して良いですか?</label>
+              </div>
+              <div class="col-12">
+                <button id="autoplay_accept" class="btn autoplay-modal-close ml-0 mt-3 w-100">音声再生を許可する</button>
+              </div>
+              <div class="col-12">
+                <button id="autoplay_reject" class="btn autoplay-modal-close ml-0 mt-3 w-100">音声再生を許可しない</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- キャンバスモーダル -->
+      <div class="modal whiteboard-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12">
+                <label class="jp">ホワイトボードを終了します。よろしいですか？<br>注）ホワイトボードの内容は消去されます。</label>
+                <label class="en" style="display: none">Do you want to exit the current whiteboard?<br>The contents of
+                  the whiteboard will be discarded.</label>
+              </div>
+              <div class="col-12">
+                <button id="whiteboard_accept" class="btn reject whiteboard-modal-close ml-0 mt-3 w-100">
+                  <label for="whiteboard_accept" class="jp">終了する</label>
+                  <label for="whiteboard_accept" class="en" style="display: none">Exit</label>
+                </button>
+              </div>
+              <div class="col-12">
+                <button id="whiteboard_reject" class="btn whiteboard-modal-close ml-0 mt-3 w-100">
+                  <label for="whiteboard_reject" class="jp">キャンセル</label>
+                  <label for="whiteboard_reject" class="en" style="display: none">Cancel</label>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 画面共有モーダル -->
+      <div class="modal screenshare-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12">
+                <label class="jp">現在の画面共有を終了します。よろしいですか？</label>
+                <label class="en" style="display: none">Do you want to exit the current screenshare?</label>
+              </div>
+              <div class="col-12">
+                <button id="sharescreen_accept" class="btn reject screenshare-modal-close ml-0 mt-3 w-100">
+                  <label for="sharescreen_accept" class="jp">終了する</label>
+                  <label for="sharescreen_accept" class="en" style="display: none">Exit</label>
+                </button>
+              </div>
+              <div class="col-12">
+                <button id="sharescreen_reject" class="btn screenshare-modal-close ml-0 mt-3 w-100">
+                  <label for="sharescreen_reject" class="jp">キャンセル</label>
+                  <label for="sharescreen_reject" class="en" style="display: none">Cancel</label>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- テキストモーダル -->
+      <div class="modal teachingMaterials-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12">
+                <label class="jp">現在共有中のテキスト（または画像）を終了します。よろしいですか？<br>注）共有内容は消去されます。</label>
+                <label class="en" style="display: none">Do you want to exit the current textbook share?<br>The contents
+                  of the textbook share will be discarded.</label>
+              </div>
+              <div class="col-12">
+                <button id="teachingMaterials_accept" class="btn reject teachingMaterials-modal-close ml-0 mt-3 w-100">
+                  <label for="teachingMaterials_accept" class="jp">終了する</label>
+                  <label for="teachingMaterials_accept" class="en" style="display: none">Exit</label>
+                </button>
+              </div>
+              <div class="col-12">
+                <button id="teachingMaterials_reject" class="btn teachingMaterials-modal-close ml-0 mt-3 w-100">
+                  <label for="teachingMaterials_reject" class="jp">キャンセル</label>
+                  <label for="teachingMaterials_reject" class="en" style="display: none">Cancel</label>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal backTextbook-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12">
+                <label class="jp">現在共有中のテキスト（または画像）を終了します。よろしいですか？<br>注）共有内容は消去されます。</label>
+                <label class="en" style="display: none">Do you want to exit the current textbook share?<br>The contents
+                  of the textbook share will be discarded.</label>
+              </div>
+              <div class="col-12">
+                <button id="backTextbook_accept" class="btn reject backTextbook-modal-close ml-0 mt-3 w-100">
+                  <label for="backTextbook_accept" class="jp">終了する</label>
+                  <label for="backTextbook_accept" class="en" style="display: none">Exit</label>
+                </button>
+              </div>
+              <div class="col-12">
+                <button id="backTextbook_reject" class="btn backTextbook-modal-close ml-0 mt-3 w-100">
+                  <label for="backTextbook_reject" class="jp">キャンセル</label>
+                  <label for="backTextbook_reject" class="en" style="display: none">Cancel</label>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 合成モーダル -->
+      <div class="modal composition-modal background-modal">
+        <div class="modal__bg composition-modal-close"></div>
+        <div class="modal__content">
+          <div class="close composition-modal-close cross_btn_background"><div id="exit-icon"></div></div>
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-12" style="padding: 0">
+                <label class="content_title">
+                  <div class="jp">背景合成</div>
+                  <div class="en" style="display: none">Background Edit</div>
+                </label>
+              </div>
+              <div class="col-12 p-0">
+                <div class="loading-wrapper-background" id="loading-background" style="visibility: hidden;">
+                  <img class="loading" src="./svg/spiner.svg" />
+                </div>
+
+                <video id="previewVideo" muted autoplay playsinline></video>
+              </div>
+              <div class="col-12 p-0 background-group">
+                <div class="overlay">
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="none" type="radio" value="1" name="background-mode" checked>
+                    <label class="w-100 m-0" for="none">
+                      <div class="sample-img sample1">
+                        <div class="none-edit jp">背景合成しない</div>
+                        <div class="none-edit en">None</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background0" type="radio" value="0" name="background-mode">
+                    <label class="w-100 m-0" for="background0">
+                      <div class="sample-img sample0">
+                        <div class="none-edit jp">背景合成のぼかし機能</div>
+                        <div class="none-edit en">Blur</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background1" type="radio" value="2" name="background-mode">
+                    <label class="w-100 m-0" for="background1">
+                      <div class="sample-img sample2"></div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background2" type="radio" value="3" name="background-mode">
+                    <label class="w-100 m-0" for="background2">
+                      <div class="sample-img sample3"></div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background3" type="radio" value="4" name="background-mode">
+                    <label class="w-100 m-0" for="background3">
+                      <div class="sample-img sample4"></div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background4" type="radio" value="5" name="background-mode">
+                    <label class="w-100 m-0" for="background4">
+                      <div class="sample-img sample5"></div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="background5" type="radio" value="6" name="background-mode">
+                    <label class="w-100 m-0" for="background5">
+                      <div class="sample-img sample6"></div>
+                    </label>
+                  </div>
+                  <div class="col-4 p-1" style="display: flex;align-items: center;justify-content: center;">
+                    <input id="file-select" type="file" accept=".jpg, .png" hidden>
+                    <input id="user" type="radio" value="7" name="background-mode">
+                    <label class="w-100 m-0" for="user">
+                      <div class="sample-img sample1"
+                        style="display: flex;align-items: center;justify-content: center;">
+                        <div class="icon_plus" style="height: 50px;width: 50px;position: absolute;"></div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                <div class="no-support-bg"></div>
+              </div>
+
+              <div class="col-12">
+                <button class="btn composition-modal-close ml-0 mt-3 w-100 jp">閉じる</button>
+                <button class="btn composition-modal-close ml-0 mt-3 w-100 en" style="display: none">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- レッスン終了モーダル -->
+      <div class="modal__content lessonend-modal"
+        style="display:none;top: 120px;padding: 5px;width: 40vw;max-width: unset;height: 200px;box-shadow: 0px 0px 3px 2px rgb(0 0 0 / 50%);">
+        <div class="container">
+          <div class="row content_text">
+            <div class="col-12" style="font-size:1rem;">
+              <div class="jp lesson-notify-wrapper">
+                <div class="lesson-notify">
+                  <p>レッスン終了時間になりました。本日はご利用ありがとうございました。<br>まもなく通話画面が終了しますので退室をお願いします。</p>
+                  <p class="notify-highlight">*「チャット」や「ノート」の内容を保存したい場合は、ダウンロードして下さい。</p>
+                </div>
+                
+              </div>
+              <div class="en lesson-notify-wrapper" style="display: none;line-height: 1.7rem;">
+                <div class="lesson-notify">
+                  <p>Lesson time is over. Thanks a lot for your lesson today.<br>LessonRoom will be disconnected
+                    automatically soon.</p>
+                  <p class="notify-highlight">* If necessary, please download the content of "Chat" and/or "Note".</p>
+                </div>
+              </div>
+            </div>
+            <!-- <div class="col-12" style="display: flex;justify-content: center;align-items: center;">
+              <button class="btn lessonend-modal-close ml-0" style="width: auto;padding: 2px 30px;font-size: 8px;height: auto;margin: 0px;">OK</button>
+            </div> -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- input file name -->
+      <div class="modal download-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="close composition-modal-close cross_btn button-close-download" style="cursor: pointer;"><span
+              aria-hidden="true">&times;</span></div>
+          <div class="container">
+            <div class="row content_text d-flex justify-content-center">
+              <div class="col-12 content_title">
+                <label class="font-weight-bold justify-content-center jp">ダウンロードファイル</label>
+                <label class="font-weight-bold justify-content-center en">Download file</label>
+              </div>
+              <div class="col-12">
+                <label class="jp">入力ファイル名</label>
+                <label class="en">Input file name</label>
+              </div>
+              <div class="col-12">
+                <input class="input-file-download" autocomplete="off" type="text" name="filename" />
+                <span class="file-zip">.zip</span>
+              </div>
+              <div class="col-8">
+                <button class="btn download-file ml-0 mt-3 w-100">
+                  <span class="jp">ダウンロード</span>
+                  <span class="en">Download</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- input file name -->
+      <div class="modal download-note-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content">
+          <div class="close composition-modal-close cross_btn button-close-notefile" style="cursor: pointer;"><span
+              aria-hidden="true">&times;</span></div>
+          <div class="container">
+            <div class="row content_text d-flex justify-content-center">
+              <div class="col-12 content_title">
+                <label class="font-weight-bold justify-content-center jp">ファイルノートのダウンロード</label>
+                <label class="font-weight-bold justify-content-center en">File note download</label>
+              </div>
+              <div class="col-12">
+                <label class="jp">入力ファイル名</label>
+                <label class="en">Input file name</label>
+              </div>
+              <div class="col-12">
+                <input class="input-note-file" autocomplete="off" type="text" name="filenote" />
+                <span class="file-zip">.txt</span>
+              </div>
+              <div class="col-8">
+                <button class="btn download-note-file ml-0 mt-3 w-100">
+                  <span class="jp">ダウンロード</span>
+                  <span class="en">Download</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal record-modal">
+        <div class="modal__bg"></div>
+        <div class="modal__content" style="width: 70vw;max-width: 500px; padding: 2rem;">
+          <div class="container">
+            <div class="row content_text">
+              <div class="col-16">
+                <label class="jp" style="height: 180px;">
+                  <div>
+                    <h4 class='title-record'>録画方法</h4>
+                    <label style="font-weight: 500; margin-top: 10px; line-height: 1.5rem;">
+                      <p style="margin-bottom: 0px;">Step 1: 下記の「録画する」ボタンを押す。</p>
+                      <p style="margin-bottom: 0px;">Step 2: 次の画面で、録画したい画面をクリックして選ぶ。</p>
+                      <p style="margin-bottom: 0px;">Step 3:「共有する」ボタンを押す。</p>
+                      <p class="record-note" style="font-size: 12px;margin: 0.7rem 0;">※上記で「共有する」ボタンを押しても、実際には講師と画面共有されませんのでご安心下さい。</p><br>
+                    </label>
+                  </div>
+                </label>
+                <label class="en" style="display: none">
+                  <div>
+                    <h4 class='title-record'>How to record</h4>
+                    <label style="font-weight: 500; margin-top: 10px;">
+                      Step 1: Click "Record" button below.<br/>
+                      Step 2: On the following dialog, choose the screen you would like to record.<br>
+                      Step 3: Click "Share" button.<br><br>
+
+                      ※<span class="record-note" style="font-size: 12px;margin: 0.7rem 0;">Your screen won't be shared with your teacher, even when you click "Share" button. So don't worry.</span><br>
+                    </label>
+                  </div>
+                </label>
+              </div>
+              <div class="col-12 mb-2">
+                <input class="form-check-input" type="checkbox" value="checked" id="check_record">
+                <label class="form-check-label jp" style="justify-content: flex-start;" for="check_record">
+                  次回からこのメッセージを表示しない
+                </label>
+                <label class="form-check-label en" style="justify-content: flex-start;" for="check_record">
+                  Do not show this message next time.
+                </label>
+              </div>
+              <div class="col-12" style="display: flex; padding: 0;">
+                <button id="recording_reject" class="btn record-modal-close ml-0 mt-3 w-100 mr-2">
+                  <label for="recording_reject" class="jp"><i class="fa fa-chevron-left" aria-hidden="true"
+                      style="margin-top:4px"></i><i class="fa fa-chevron-left" aria-hidden="true"
+                      style="margin-top:4px"></i>&nbsp;&nbsp;キャンセル</label>
+                  <label for="recording_reject" class="en" style="display: none">
+                    <i class="fa fa-chevron-left" aria-hidden="true" style="margin-top:4px"></i><i
+                      class="fa fa-chevron-left" aria-hidden="true"
+                      style="margin-top:4px"></i>&nbsp;&nbsp;Cancel</label>
+                </button>
+                <button id="recording_accept" class="btn reject record-modal-close ml-0 mt-3 w-100">
+                  <label for="recording_accept" class="jp">録画する&nbsp;&nbsp;<i class="fa fa-chevron-right"
+                      aria-hidden="true" style="margin-top:4px"></i><i class="fa fa-chevron-right" aria-hidden="true"
+                      style="margin-top:4px"></i></label>
+                  <label for="recording_accept" class="en" style="display: none">
+                    Record&nbsp;&nbsp;<i class="fa fa-chevron-right" aria-hidden="true" style="margin-top:4px"></i><i
+                      class="fa fa-chevron-right" aria-hidden="true" style="margin-top:4px"></i></label>
+                </button>
+              </div>
+              <!-- <div class="col-12">
+                
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" style="position: absolute; top: 20px; left: calc(50% - 123px); height: 40px;"
+        data-delay="2500">
+        <div class="toast-header">
+          <img src="./svg/checked.png" style="max-width: 22px; margin-right: 0.5rem" />
+          <strong class="mr-auto en" style="color: #000; font-weight: 400;">Your record has been downloaded.</strong>
+          <strong class="mr-auto jp" style="color: #000; font-weight: 400;">画面収録ビデオが保存されました。</strong>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+  <div class="empty-div" style=""></div>
+</body>
+<script type="text/javascript" src="./client/moment.min.js?v=202209091914"></script>
+<script type="text/javascript" src="./client/momenttimezone.min.js?v=202209091914"></script>
+
+
+<script type="text/javascript" src="./client/client2.js?v=202209091914"></script>
+<!-- <script type="text/javascript" src="./record/record.js?v=202209091914" defer></script> -->
+<script type="text/javascript" src="./record/recordNew.js?v=202209091914" defer></script>
+<script type="text/javascript" src="./helper/common.js"></script>
+<script type="text/javascript" src="./main.js?v=202209091914"></script>
+<script src="build/pdf.js"></script>
+<!-- <script src="virtual_background/vectorly.filters.js"></script> -->
+
+<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/yjs@12/dist/y.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-array@10/dist/y-array.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-websockets-client@8/dist/y-websockets-client.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-memory@8/dist/y-memory.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-array@10/dist/y-array.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-map@10/dist/y-map.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-text@9/dist/y-text.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/y-richtext@9/dist/y-richtext.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<script src="note/TextEditContainer.js?v=202209091914"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+
+</html>
